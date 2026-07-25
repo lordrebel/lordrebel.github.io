@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Compiler Engineer — NPU dataflow architecture, MLIR, CUDA. Personal portfolio.">
+  <title>lordrebel // AI Compiler Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="images/avatar/avatar1.png">
+</head>
+<body>
+
+  <!-- Global Background Slideshow -->
+  <div class="bg-slideshow">
+    <div class="bg-slide active" style="background-image: url('images/resource/cyberpunk_8ollzo.png')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_28eley.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_72yzlo.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_96gy38.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_g71klq.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_jxw5vy.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_lmxjdp.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_m9yg6k.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_rdj2q7.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_vqmvo5.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('images/resource/cyberpunk_w8pwe6.jpg')"></div>
+  </div>
+  <div class="bg-overlay"></div>
+
+  <!-- Navigation -->
+  <nav class="nav-bar">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo">lordrebel</a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#hobbies">Hobbies</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="zh.html" class="lang-toggle">中文</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Decorative side bars -->
+  <div class="deco-bar-left"></div>
+  <div class="deco-bar-right"></div>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <img src="images/avatar/avatar1.png" alt="Avatar" class="hero-avatar">
+      <h1 class="hero-title glitch" data-text="lordrebel">lordrebel</h1>
+      <p class="hero-subtitle">AI Compiler Engineer</p>
+      <p class="hero-tagline">
+        Building compilers for NPU dataflow architecture chips. From deep learning model deployment to MLIR-based compiler stacks — bridging the gap between algorithms and silicon.
+      </p>
+      <a href="#about" class="hero-cta">Enter System</a>
+    </div>
+    <div class="scroll-indicator">▼</div>
+  </section>
+
+  <!-- About -->
+  <section class="section has-bg" id="about" style="--bg-img: url('images/resource/cyberpunk_28eley.jpg')">
+    <h2 class="section-title"><span class="num">01</span>About</h2>
+    <div class="avatar-gallery">
+      <img src="images/avatar/avatar1.png" alt="Avatar 1">
+      <img src="images/avatar/avatar2.png" alt="Avatar 2">
+      <img src="images/avatar/avatar3.png" alt="Avatar 3">
+    </div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          I'm an <span class="highlight">AI Compiler Engineer</span> focused on NPU (dataflow architecture) compiler development. I graduated from <span class="highlight">Tiangong University</span> in 2018, majoring in image processing and 3D reconstruction.
+        </p>
+        <p>
+          My career spans the full AI deployment stack — from CV algorithm engineering and model quantization, to deep learning framework development, and finally to AI compiler engineering for custom accelerator chips.
+        </p>
+        <p>
+          Outside of work, I enjoy growing plants, keeping cats, playing console games, and watching niche films.
+        </p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-card">
+          <div class="stat-number">7+</div>
+          <div class="stat-label">Years in AI</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Companies</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2</div>
+          <div class="stat-label">NPU Chips</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">10+</div>
+          <div class="stat-label">Models Shipped</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section class="section has-bg" id="experience" style="--bg-img: url('images/resource/cyberpunk_72yzlo.jpg')">
+    <h2 class="section-title"><span class="num">02</span>Experience</h2>
+    <div class="timeline">
+
+      <!-- Imvision -->
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <img src="images/company/imvision.png" alt="Imvision" class="company-logo">
+          <div>
+            <div class="timeline-role">AI Compiler Engineer</div>
+            <div class="timeline-company">Imvision</div>
+          </div>
+          <div class="timeline-period">2025 — Present</div>
+        </div>
+        <ul class="timeline-details">
+          <li><span class="project-name">A300 / A400 / A500 AI Compiler</span> — Independently developed a greedy-search-based LayerGroup merging strategy, significantly improving operator scheduling efficiency.</li>
+        </ul>
+      </div>
+
+      <!-- Montage -->
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <img src="images/company/montage.svg" alt="Montage" class="company-logo">
+          <div>
+            <div class="timeline-role">AI Compiler Engineer</div>
+            <div class="timeline-company">Montage Technology</div>
+          </div>
+          <div class="timeline-period">2022 — 2024</div>
+        </div>
+        <ul class="timeline-details">
+          <li><span class="project-name">Tianmushan AI Chip 2.0</span> (2023.11–2024.11) — Graph-level model optimization (operator splitting / fusion / pipeline scheduling). Built Shape Inference framework, implemented Group Op / Subgroup Op logic and intra-subgroup operator pipeline scheduling. Supported Llama, MoE and 10+ models across multiple precisions and frameworks.</li>
+          <li><span class="project-name">Tianmushan AI Chip 1.0</span> (2022.4–2023.11) — Added graph construction capability to compiler frontend (TensorRT-style API). Developed model optimization patterns. Refactored CostModel for runtime reports. Backend compilation optimization drastically reduced compile time. Runtime quantized inference support, ported to TFServing.</li>
+        </ul>
+      </div>
+
+      <!-- Cambricon -->
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <img src="images/company/cambricon.png" alt="Cambricon" class="company-logo">
+          <div>
+            <div class="timeline-role">Deep Learning Framework Engineer</div>
+            <div class="timeline-company">Cambricon</div>
+          </div>
+          <div class="timeline-period">2021 — 2022</div>
+        </div>
+        <ul class="timeline-details">
+          <li><span class="project-name">TF2MagicMind</span> — Built TensorFlow-to-MagicMind model conversion framework, referencing TF2TRT architecture.</li>
+          <li><span class="project-name">Model Adaptation</span> — Developed model testing tools; completed adaptation and test docs for ResNet50, VGG16, VGG19, CenterNet, DenseNet201, BERT-Base, and more.</li>
+          <li><span class="project-name">Python API Binding</span> — Developed Python bindings for MagicMind.</li>
+        </ul>
+      </div>
+
+      <!-- ichinaE -->
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <img src="images/company/ichinae.png" alt="ichinaE" class="company-logo">
+          <div>
+            <div class="timeline-role">Model Deployment Engineer</div>
+            <div class="timeline-company">ichinaE</div>
+          </div>
+          <div class="timeline-period">2020 — 2021</div>
+        </div>
+        <ul class="timeline-details">
+          <li><span class="project-name">onestream</span> — Built a self-developed streaming inference framework from scratch using CUDA / TensorRT: overall architecture, video decoding, inference module, model conversion & quantization, custom operators (ChannelShuffle / SplitLayer).</li>
+          <li><span class="project-name">DeepStream / GStreamer Wrapper</span> — Custom preprocessing and model result packaging.</li>
+          <li><span class="project-name">Face Recognition Service</span> — Cambricon MLU270-based: model-to-CNRT quantization, CNStream service, Docker + Jenkins CI/CD.</li>
+        </ul>
+      </div>
+
+      <!-- Clobotics -->
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <img src="images/company/clobotics.png" alt="Clobotics" class="company-logo">
+          <div>
+            <div class="timeline-role">CV Algorithm Engineer</div>
+            <div class="timeline-company">Clobotics</div>
+          </div>
+          <div class="timeline-period">2018 — 2020</div>
+        </div>
+        <ul class="timeline-details">
+          <li><span class="project-name">Smartcooler</span> — Led full pipeline from error analysis, annotation rules, training tuning to deployment. Coca-Cola recognition 90% (475 classes), Budweiser 83% (67 classes).</li>
+          <li><span class="project-name">Software System R&D</span> — Door open/close logic, door angle calculation, image post-processing (distortion correction, rotation, quality enhancement).</li>
+          <li><span class="project-name">Autolabel</span> — Data collection platform: backend model training, product & price tag matching algorithms.</li>
+        </ul>
+      </div>
+
+      <!-- University -->
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <div>
+            <div class="timeline-role">Student Researcher</div>
+            <div class="timeline-company">Tiangong University</div>
+          </div>
+          <div class="timeline-period">2014 — 2018</div>
+        </div>
+        <ul class="timeline-details">
+          <li><span class="project-name">Server Chassis Online Inspection</span> — GPU-accelerated binocular multi-frequency heterodyne point cloud generation; pit, curve & screw slip detection (Hough circle / Hu moments / Logistic Regression).</li>
+          <li><span class="project-name">Stage Pedestrian Safety System</span> — HOG + Gaussian background modeling pedestrian detection with Gige industrial cameras.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section class="section has-bg" id="skills" style="--bg-img: url('images/resource/cyberpunk_96gy38.jpg')">
+    <h2 class="section-title"><span class="num">03</span>Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-category">
+        <h3>Solid</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">C++</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">MLIR</span>
+          <span class="skill-tag">CUDA</span>
+          <span class="skill-tag">OpenMP</span>
+          <span class="skill-tag">AI Compiler</span>
+        </div>
+      </div>
+      <div class="skill-category">
+        <h3>Familiar</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">TensorFlow</span>
+          <span class="skill-tag">PyTorch</span>
+          <span class="skill-tag">TensorRT</span>
+          <span class="skill-tag">TPU-MLIR</span>
+        </div>
+      </div>
+      <div class="skill-category">
+        <h3>Aware</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">OpenAI Triton</span>
+          <span class="skill-tag">ONNX-MLIR</span>
+        </div>
+      </div>
+      <div class="skill-category">
+        <h3>Other</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">Quantization</span>
+          <span class="skill-tag">Edge Deployment</span>
+          <span class="skill-tag">Kubernetes</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">Jenkins CI/CD</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hobbies -->
+  <section class="section has-bg" id="hobbies" style="--bg-img: url('images/resource/cyberpunk_g71klq.jpg')">
+    <h2 class="section-title"><span class="num">04</span>Hobbies</h2>
+
+    <h3 style="font-family:'Orbitron',monospace;color:var(--neon-magenta);letter-spacing:2px;margin-bottom:1.5rem;text-transform:uppercase;">🐱 My Cats</h3>
+    <div class="gallery-grid" style="margin-bottom:3rem;">
+      <div class="gallery-item">
+        <img src="images/cats/image-20260101190520-i4hlgpt.png" alt="Cat 1">
+        <div class="gallery-overlay"><span>Cat Overlord #1</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/cats/image-20260101190623-h8z2j37.png" alt="Cat 2">
+        <div class="gallery-overlay"><span>Cat Overlord #2</span></div>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Orbitron',monospace;color:var(--neon-magenta);letter-spacing:2px;margin-bottom:1.5rem;text-transform:uppercase;">🎮 Favorite Games</h3>
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <img src="images/games/image-20251227002735-009xlyw.png" alt="Game 1">
+        <div class="gallery-overlay"><span>Game</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/games/image-20251227002819-qgyffbo.png" alt="Game 2">
+        <div class="gallery-overlay"><span>Game</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/games/image-20251227002851-9xaebqc.png" alt="Game 3">
+        <div class="gallery-overlay"><span>Game</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/games/image-20251227002954-wtlvbdn.png" alt="Game 4">
+        <div class="gallery-overlay"><span>Game</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/games/image-20251227003030-kgov79d.png" alt="Game 5">
+        <div class="gallery-overlay"><span>Game</span></div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/games/image-20251227004126-knretvm.png" alt="Game 6">
+        <div class="gallery-overlay"><span>Game</span></div>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:2rem;color:var(--text-dim);font-size:1rem;">
+      🪴 Plant enthusiast &nbsp;·&nbsp; 🎬 Niche film lover &nbsp;·&nbsp; 🎮 PS5 / Steam gamer
+    </p>
+  </section>
+
+  <!-- Contact -->
+  <section class="section has-bg" id="contact" style="--bg-img: url('images/resource/cyberpunk_jxw5vy.jpg')">
+    <h2 class="section-title"><span class="num">05</span>Contact</h2>
+    <div class="contact-grid">
+      <a href="https://github.com/lordrebel" target="_blank" rel="noopener" class="contact-card">
+        <span class="contact-icon">⌘</span>
+        <div class="contact-label">GitHub</div>
+        <div class="contact-value">lordrebel</div>
+      </a>
+      <a href="https://leetcode.cn/u/lordrebel/" target="_blank" rel="noopener" class="contact-card">
+        <span class="contact-icon">⌬</span>
+        <div class="contact-label">LeetCode</div>
+        <div class="contact-value">lordrebel</div>
+      </a>
+      <a href="mailto:529683504@qq.com" class="contact-card">
+        <span class="contact-icon">✉</span>
+        <div class="contact-label">Email</div>
+        <div class="contact-value">529683504@qq.com</div>
+      </a>
+      <a href="mailto:jim529683504@gmail.com" class="contact-card">
+        <span class="contact-icon">✉</span>
+        <div class="contact-label">Gmail</div>
+        <div class="contact-value">jim529683504@gmail.com</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 <span class="neon">lordrebel</span> // Powered by <span class="neon">GitHub Pages</span> // Built with ❤ & neon</p>
+  </footer>
+
+  <!-- Background Slideshow Script -->
+  <script>
+    (function() {
+      var slides = document.querySelectorAll('.bg-slide');
+      var totalSlides = slides.length;
+      var currentActive = 0;
+
+      function updateBackground() {
+        var scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollMax <= 0) return;
+        var scrollProgress = window.scrollY / scrollMax;
+        var activeIndex = Math.min(Math.floor(scrollProgress * totalSlides), totalSlides - 1);
+        if (activeIndex !== currentActive) {
+          slides[currentActive].classList.remove('active');
+          slides[activeIndex].classList.add('active');
+          currentActive = activeIndex;
+        }
+      }
+
+      window.addEventListener('scroll', updateBackground, { passive: true });
+      window.addEventListener('resize', updateBackground);
+      updateBackground();
+    })();
+  </script>
+
+</body>
+</html>
