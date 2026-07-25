@@ -33,6 +33,8 @@
   <nav class="nav-bar">
     <div class="nav-inner">
       <a href="#hero" class="nav-logo">lordrebel</a>
+      <input type="checkbox" id="nav-check" class="nav-check">
+      <label for="nav-check" class="nav-hamburger">☰</label>
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
         <li><a href="#experience">Experience</a></li>
@@ -40,6 +42,7 @@
         <li><a href="#hobbies">Hobbies</a></li>
         <li><a href="#contact">Contact</a></li>
         <li><a href="zh.html" class="lang-toggle">中文</a></li>
+        <li><button class="style-toggle" onclick="document.body.classList.toggle('minimal');this.textContent=document.body.classList.contains('minimal')?'Maximal':'Minimal'">Minimal</button></li>
       </ul>
     </div>
   </nav>
