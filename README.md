@@ -1,2 +1,2 @@
 # lordrebel.github.io
-my resume
+my website for introduce myself
