@@ -183,6 +183,84 @@ body::after {
   box-shadow: 0 0 15px var(--neon-purple);
 }
 
+/* ===== Articles Dropdown ===== */
+.nav-articles { position: relative; }
+
+.articles-toggle {
+  font-family: 'Orbitron', monospace;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--neon-green);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--neon-green);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+}
+
+.articles-toggle:hover,
+.articles-toggle.active {
+  background: var(--neon-green);
+  color: var(--bg-dark);
+  box-shadow: 0 0 15px var(--neon-green);
+}
+
+.articles-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: rgba(10, 10, 18, 0.97);
+  border: 1px solid var(--border-glow);
+  border-radius: 6px;
+  padding: 0.8rem;
+  z-index: 1001;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+.articles-panel.open { display: block; }
+
+.articles-panel-title {
+  font-family: 'Orbitron', monospace;
+  color: var(--neon-cyan);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-glow);
+}
+
+.articles-list { list-style: none; }
+
+.articles-list a {
+  display: block;
+  color: var(--text-main);
+  text-decoration: none;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: all 0.25s;
+}
+
+.articles-list a:hover {
+  color: var(--neon-magenta);
+  background: rgba(255, 0, 229, 0.08);
+  text-shadow: 0 0 8px var(--neon-magenta);
+}
+
+.articles-empty {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+}
+
 /* ===== Hero Section ===== */
 .hero {
   min-height: 100vh;
@@ -1018,6 +1096,15 @@ body.minimal .hero-tagline {
     font-size: 0.9rem;
   }
   .style-toggle { padding: 0.3rem 0.7rem; }
+
+  /* ---- Articles dropdown: 随导航列展开,占满整行 ---- */
+  .articles-toggle { padding: 0.3rem 0.7rem; }
+  .articles-panel {
+    position: static;
+    width: 100%;
+    margin-top: 0.3rem;
+    box-shadow: none;
+  }
 
   /* ---- Prevent 100vw overflow ---- */
   .section.has-bg::before { width: calc(100vw - 0px); }

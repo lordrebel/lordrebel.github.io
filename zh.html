@@ -41,6 +41,13 @@
         <li><a href="#skills">技能</a></li>
         <li><a href="#hobbies">爱好</a></li>
         <li><a href="#contact">联系</a></li>
+        <li class="nav-articles">
+          <button class="articles-toggle" id="articlesBtn" type="button">文章 ▾</button>
+          <div class="articles-panel" id="articlesPanel">
+            <div class="articles-panel-title">文章列表</div>
+            <ul class="articles-list" id="articlesList"><li class="articles-empty">加载中…</li></ul>
+          </div>
+        </li>
         <li><a href="index.html" class="lang-toggle">EN</a></li>
         <li><button class="style-toggle" onclick="document.body.classList.toggle('minimal');this.textContent=document.body.classList.contains('minimal')?'炫酷':'简洁'">简洁</button></li>
       </ul>
@@ -122,7 +129,10 @@
           <div class="timeline-period">2025 — 至今</div>
         </div>
         <ul class="timeline-details">
-          <li><span class="project-name">A300 / A400 / A500 AI 编译器</span> —— 独立开发并实现基于贪心搜索的 LayerGroup 合并策略，显著提升算子调度效率。</li>
+          <li><span class="project-name">A300 / A400 / A500 AI 编译器</span> —— 完成基于贪心搜索的 LayerGroup 方案制定并参与实施，显著提升算子调度效率。</li>
+          <li><span class="project-name">LayerGroup 结合方案</span> —— 完成 A300 / A400 / A500 的 LayerGroup 结合方案制定。</li>
+          <li><span class="project-name">A300 客户模型调优</span> —— 支持客户模型调优。</li>
+          <li><span class="project-name">A300 / A500 MLIR 编译器</span> —— 独立完成并实现基于 MLIR 的 AI 编译器。</li>
         </ul>
       </div>
 
@@ -137,8 +147,8 @@
           <div class="timeline-period">2022 — 2024</div>
         </div>
         <ul class="timeline-details">
-          <li><span class="project-name">天目山 AI 芯片 2.0</span>（2023.11–2024.11）—— 负责图层面模型优化（算子切分 / Fusion / 流水排布），完善 Shape Inference 框架，实现 Group Op / Subgroup Op 逻辑及 Subgroup 内算子流水排布，支持 Llama / MoE 等 10+ 模型的多种精度与框架。</li>
-          <li><span class="project-name">天目山 AI 芯片 1.0</span>（2022.4–2023.11）—— 参考 TensorRT 接口为编译器前端增加构图能力；开发模型优化 Pattern；重构 CostModel 生成运行报告；后端编译优化大幅缩短编译时间；Runtime 支持量化推理并移植至 TFServing。</li>
+          <li><span class="project-name">天目山 AI 芯片 2.0</span>（基于腾讯天柱 IP 设计；2023.11–2024.11）—— 负责图层面模型优化（算子切分 / Fusion / 流水排布），完善 Shape Inference 框架，实现 Group Op / Subgroup Op 逻辑及 Subgroup 内算子流水排布，支持 Llama / MoE 等 10+ 模型的多种精度与框架。</li>
+          <li><span class="project-name">天目山 AI 芯片 1.0</span>（基于 NVDLA 开源框架设计；2022.4–2023.11）—— 参考 TensorRT 接口为编译器前端增加构图能力；开发模型优化 Pattern；重构 CostModel 生成运行报告；后端编译优化大幅缩短编译时间；Runtime 支持量化推理并移植至 TFServing。</li>
         </ul>
       </div>
 
@@ -358,6 +368,69 @@
       window.addEventListener('scroll', updateBackground, { passive: true });
       window.addEventListener('resize', updateBackground);
       updateBackground();
+    })();
+  </script>
+
+  <!-- Articles Dropdown Script -->
+  <script>
+    (function() {
+      var loaded = false;
+
+      function toggleArticles() {
+        var panel = document.getElementById('articlesPanel');
+        var btn = document.getElementById('articlesBtn');
+        if (!panel) return;
+        panel.classList.toggle('open');
+        btn.classList.toggle('active');
+        if (panel.classList.contains('open') && !loaded) loadArticles();
+      }
+
+      function loadArticles() {
+        var s = document.createElement('script');
+        s.src = 'articles/htmls/articles.js';
+        s.onload = function() {
+          loaded = true;
+          renderArticles();
+        };
+        s.onerror = function() {
+          document.getElementById('articlesList').innerHTML =
+            '<li class="articles-empty">暂无文章</li>';
+        };
+        document.body.appendChild(s);
+      }
+
+      function renderArticles() {
+        var list = document.getElementById('articlesList');
+        var arts = window.ARTICLES || [];
+        list.innerHTML = '';
+        if (!arts.length) {
+          list.innerHTML = '<li class="articles-empty">暂无文章</li>';
+          return;
+        }
+        arts.forEach(function(a) {
+          var li = document.createElement('li');
+          var link = document.createElement('a');
+          link.href = 'articles/htmls/' + a.file;
+          link.textContent = a.title;
+          li.appendChild(link);
+          list.appendChild(li);
+        });
+      }
+
+      document.getElementById('articlesBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleArticles();
+      });
+
+      // 点击面板外部时关闭下拉
+      document.addEventListener('click', function(e) {
+        var panel = document.getElementById('articlesPanel');
+        if (panel && panel.classList.contains('open') &&
+            !e.target.closest('.nav-articles')) {
+          panel.classList.remove('open');
+          document.getElementById('articlesBtn').classList.remove('active');
+        }
+      });
     })();
   </script>
 

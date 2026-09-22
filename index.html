@@ -41,6 +41,13 @@
         <li><a href="#skills">Skills</a></li>
         <li><a href="#hobbies">Hobbies</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li class="nav-articles">
+          <button class="articles-toggle" id="articlesBtn" type="button">Articles ▾</button>
+          <div class="articles-panel" id="articlesPanel">
+            <div class="articles-panel-title">Articles</div>
+            <ul class="articles-list" id="articlesList"><li class="articles-empty">Loading…</li></ul>
+          </div>
+        </li>
         <li><a href="zh.html" class="lang-toggle">中文</a></li>
         <li><button class="style-toggle" onclick="document.body.classList.toggle('minimal');this.textContent=document.body.classList.contains('minimal')?'Maximal':'Minimal'">Minimal</button></li>
       </ul>
@@ -122,7 +129,10 @@
           <div class="timeline-period">2025 — Present</div>
         </div>
         <ul class="timeline-details">
-          <li><span class="project-name">A300 / A400 / A500 AI Compiler</span> — Independently developed a greedy-search-based LayerGroup merging strategy, significantly improving operator scheduling efficiency.</li>
+          <li><span class="project-name">A300 / A400 / A500 AI Compiler</span> — Designed the greedy-search-based LayerGroup strategy and participated in its implementation, significantly improving operator scheduling efficiency.</li>
+          <li><span class="project-name">LayerGroup Combination Strategy</span> — Designed the LayerGroup combination scheme for A300 / A400 / A500.</li>
+          <li><span class="project-name">A300 Model Tuning</span> — Supported customer model performance tuning.</li>
+          <li><span class="project-name">A300 / A500 MLIR Compiler</span> — Independently developed and implemented an MLIR-based AI compiler.</li>
         </ul>
       </div>
 
@@ -137,8 +147,8 @@
           <div class="timeline-period">2022 — 2024</div>
         </div>
         <ul class="timeline-details">
-          <li><span class="project-name">Tianmushan AI Chip 2.0</span> (2023.11–2024.11) — Graph-level model optimization (operator splitting / fusion / pipeline scheduling). Built Shape Inference framework, implemented Group Op / Subgroup Op logic and intra-subgroup operator pipeline scheduling. Supported Llama, MoE and 10+ models across multiple precisions and frameworks.</li>
-          <li><span class="project-name">Tianmushan AI Chip 1.0</span> (2022.4–2023.11) — Added graph construction capability to compiler frontend (TensorRT-style API). Developed model optimization patterns. Refactored CostModel for runtime reports. Backend compilation optimization drastically reduced compile time. Runtime quantized inference support, ported to TFServing.</li>
+          <li><span class="project-name">Tianmushan AI Chip 2.0</span> (Tencent Tianzhu IP-based; 2023.11–2024.11) — Graph-level model optimization (operator splitting / fusion / pipeline scheduling). Built Shape Inference framework, implemented Group Op / Subgroup Op logic and intra-subgroup operator pipeline scheduling. Supported Llama, MoE and 10+ models across multiple precisions and frameworks.</li>
+          <li><span class="project-name">Tianmushan AI Chip 1.0</span> (NVDLA open-source framework-based; 2022.4–2023.11) — Added graph construction capability to compiler frontend (TensorRT-style API). Developed model optimization patterns. Refactored CostModel for runtime reports. Backend compilation optimization drastically reduced compile time. Runtime quantized inference support, ported to TFServing.</li>
         </ul>
       </div>
 
@@ -358,6 +368,69 @@
       window.addEventListener('scroll', updateBackground, { passive: true });
       window.addEventListener('resize', updateBackground);
       updateBackground();
+    })();
+  </script>
+
+  <!-- Articles Dropdown Script -->
+  <script>
+    (function() {
+      var loaded = false;
+
+      function toggleArticles() {
+        var panel = document.getElementById('articlesPanel');
+        var btn = document.getElementById('articlesBtn');
+        if (!panel) return;
+        panel.classList.toggle('open');
+        btn.classList.toggle('active');
+        if (panel.classList.contains('open') && !loaded) loadArticles();
+      }
+
+      function loadArticles() {
+        var s = document.createElement('script');
+        s.src = 'articles/htmls/articles.js';
+        s.onload = function() {
+          loaded = true;
+          renderArticles();
+        };
+        s.onerror = function() {
+          document.getElementById('articlesList').innerHTML =
+            '<li class="articles-empty">No articles yet</li>';
+        };
+        document.body.appendChild(s);
+      }
+
+      function renderArticles() {
+        var list = document.getElementById('articlesList');
+        var arts = window.ARTICLES || [];
+        list.innerHTML = '';
+        if (!arts.length) {
+          list.innerHTML = '<li class="articles-empty">No articles yet</li>';
+          return;
+        }
+        arts.forEach(function(a) {
+          var li = document.createElement('li');
+          var link = document.createElement('a');
+          link.href = 'articles/htmls/' + a.file;
+          link.textContent = a.title;
+          li.appendChild(link);
+          list.appendChild(li);
+        });
+      }
+
+      document.getElementById('articlesBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleArticles();
+      });
+
+      // 点击面板外部时关闭下拉
+      document.addEventListener('click', function(e) {
+        var panel = document.getElementById('articlesPanel');
+        if (panel && panel.classList.contains('open') &&
+            !e.target.closest('.nav-articles')) {
+          panel.classList.remove('open');
+          document.getElementById('articlesBtn').classList.remove('active');
+        }
+      });
     })();
   </script>
 
