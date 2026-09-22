@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="强烈建议使用 encoding！！！！！可以最大限度的兼容mlir的生态！！！！">
+  <title>用 encoding 还是自定义的 tensorType？ // lordrebel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="icon" type="image/png" href="../../images/avatar/avatar1.png">
+  <!-- KaTeX 公式渲染 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <!-- highlight.js 代码语法高亮 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg-slideshow">
+    <div class="bg-slide active" style="background-image: url('../../images/resource/cyberpunk_w8pwe6.jpg')"></div>
+  </div>
+  <div class="bg-overlay"></div>
+
+  <!-- Navigation -->
+  <nav class="nav-bar">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-logo">lordrebel</a>
+      <input type="checkbox" id="nav-check" class="nav-check">
+      <label for="nav-check" class="nav-hamburger">☰</label>
+      <ul class="nav-links">
+        <li><a href="../../index.html" class="lang-toggle">⌂ 返回主页</a></li>
+        <li class="font-zoom">
+          <button class="zoom-btn" type="button" data-zoom="out" title="缩小字号">A−</button>
+          <button class="zoom-btn" type="button" data-zoom="reset" title="默认字号">A</button>
+          <button class="zoom-btn" type="button" data-zoom="in" title="放大字号">A+</button>
+        </li>
+        <li><button class="style-toggle" onclick="document.body.classList.toggle('minimal');this.textContent=document.body.classList.contains('minimal')?'炫酷':'简洁'">简洁</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Decorative side bars -->
+  <div class="deco-bar-left"></div>
+  <div class="deco-bar-right"></div>
+
+  <!-- Article -->
+  <section class="section has-bg article-section" id="article">
+    <h2 class="section-title"><span class="num">2026.09.23</span>用 encoding 还是自定义的 tensorType？</h2>
+    <div class="article-content">
+      <p>强烈建议使用 encoding！！！！！可以最大限度的兼容mlir的生态！！！！</p>
+      <p>‍</p>
+      <h2 id="tensorencoding">TensorEncoding 基础概念</h2>
+      <pre><code class="language-cpp">// 🎯 TensorEncoding 是附加在 TensorType 上的属性
+      // tensor&lt;shape, element_type, encoding&gt;
+      tensor&lt;1x32x16x44xf32, #my_encoding&gt;
+      </code></pre>
+      <h2 id="1-create-tensorencoding">1. 增加 (Create) - 创建 TensorEncoding</h2>
+      <h3 id="1-c">方法1：在 C++ 中创建</h3>
+      <p>your_code.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      #include &quot;mlir/IR/BuiltinTypes.h&quot;
+      #include &quot;mlir/IR/Attributes.h&quot;
+
+      // 🎉 创建带 encoding 的 tensor
+      mlir::RankedTensorType createEncodedTensor(mlir::MLIRContext *context) {
+          // 创建 encoding 属性
+          auto encoding = mlir::StringAttr::get(context, &quot;my_custom_encoding&quot;);
+
+          // 创建带 encoding 的 tensor 类型
+          auto shape = llvm::ArrayRef&lt;int64_t&gt;{1, 32, 16, 44};
+          auto elementType = mlir::FloatType::getF32(context);
+
+          return mlir::RankedTensorType::get(shape, elementType, encoding);
+      }
+
+      // 🎯 使用自定义 encoding 属性
+      mlir::RankedTensorType createHalEncodedTensor(mlir::MLIRContext *context) {
+          // 假设你有自定义的 HalEncodingAttr
+          auto halEncoding = tbc::hals::HalEncodingAttr::get(context,
+              MemorySpace::DDR,
+              StorageLayout::NCHW,
+              0,
+              TensorKind::IOTensor);
+
+          auto shape = llvm::ArrayRef&lt;int64_t&gt;{1, 32, 16, 44};
+          auto elementType = mlir::FloatType::getF32(context);
+
+          return mlir::RankedTensorType::get(shape, elementType, halEncoding);
+      }
+      </code></pre>
+      <h3 id="2-operation">方法2：在 Operation 中创建</h3>
+      <p>SomeOp.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      void SomeOp::build(mlir::OpBuilder &amp;builder, mlir::OperationState &amp;state,
+                         mlir::Value input, mlir::Attribute encoding) {
+          // 🎯 获取输入类型
+          auto inputType = input.getType().cast&lt;mlir::RankedTensorType&gt;();
+
+          // 🎉 创建带新 encoding 的输出类型
+          auto outputType = mlir::RankedTensorType::get(
+              inputType.getShape(),
+              inputType.getElementType(),
+              encoding  // 新的 encoding
+          );
+
+          state.addOperands(input);
+          state.addTypes(outputType);
+      }
+      </code></pre>
+      <h3 id="3-pattern">方法3：在 Pattern 中创建</h3>
+      <p>SomePattern.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      class AddEncodingPattern : public mlir::OpRewritePattern&lt;SomeOp&gt; {
+      public:
+          using OpRewritePattern::OpRewritePattern;
+
+          mlir::LogicalResult matchAndRewrite(SomeOp op, mlir::PatternRewriter &amp;rewriter) const override {
+              auto inputType = op.getInput().getType().cast&lt;mlir::RankedTensorType&gt;();
+
+              // 🎉 创建新的 encoding
+              auto newEncoding = mlir::StringAttr::get(getContext(), &quot;optimized_layout&quot;);
+
+              // 🎯 创建新的类型
+              auto newType = mlir::RankedTensorType::get(
+                  inputType.getShape(),
+                  inputType.getElementType(),
+                  newEncoding
+              );
+
+              // 替换操作
+              auto newOp = rewriter.create&lt;SomeOp&gt;(op.getLoc(), newType, op.getInput());
+              rewriter.replaceOp(op, newOp);
+
+              return success();
+          }
+      };
+      </code></pre>
+      <h2 id="2-delete-tensorencoding">2. 删除 (Delete) - 移除 TensorEncoding</h2>
+      <h3 id="1-encoding">方法1：移除 encoding</h3>
+      <p>RemoveEncoding.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      mlir::RankedTensorType removeEncoding(mlir::RankedTensorType tensorType) {
+          // 🎯 创建没有 encoding 的新类型
+          return mlir::RankedTensorType::get(
+              tensorType.getShape(),
+              tensorType.getElementType()
+              // 不传 encoding 参数，默认为 nullptr
+          );
+      }
+
+      // 🎉 在 Pattern 中移除 encoding
+      class RemoveEncodingPattern : public mlir::OpRewritePattern&lt;SomeOp&gt; {
+      public:
+          using OpRewritePattern::OpRewritePattern;
+
+          mlir::LogicalResult matchAndRewrite(SomeOp op, mlir::PatternRewriter &amp;rewriter) const override {
+              auto resultType = op.getResult().getType().cast&lt;mlir::RankedTensorType&gt;();
+
+              // 🚨 检查是否有 encoding
+              if (!resultType.getEncoding()) {
+                  return failure(); // 没有 encoding，不需要处理
+              }
+
+              // 🎯 移除 encoding
+              auto newType = mlir::RankedTensorType::get(
+                  resultType.getShape(),
+                  resultType.getElementType()
+              );
+
+              auto newOp = rewriter.create&lt;SomeOp&gt;(op.getLoc(), newType, op.getOperands());
+              rewriter.replaceOp(op, newOp);
+
+              return success();
+          }
+      };
+      </code></pre>
+      <h3 id="2">方法2：条件性移除</h3>
+      <p>ConditionalRemove.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      class ConditionalRemoveEncodingPattern : public mlir::OpRewritePattern&lt;SomeOp&gt; {
+      public:
+          using OpRewritePattern::OpRewritePattern;
+
+          mlir::LogicalResult matchAndRewrite(SomeOp op, mlir::PatternRewriter &amp;rewriter) const override {
+              auto resultType = op.getResult().getType().cast&lt;mlir::RankedTensorType&gt;();
+              auto encoding = resultType.getEncoding();
+
+              if (!encoding) return failure();
+
+              // 🎯 检查特定类型的 encoding
+              if (auto halEncoding = encoding.dyn_cast&lt;tbc::hals::HalEncodingAttr&gt;()) {
+                  // 只移除 DDR 内存空间的 encoding
+                  if (halEncoding.getMemorySpace() == MemorySpace::DDR) {
+                      auto newType = mlir::RankedTensorType::get(
+                          resultType.getShape(),
+                          resultType.getElementType()
+                      );
+
+                      auto newOp = rewriter.create&lt;SomeOp&gt;(op.getLoc(), newType, op.getOperands());
+                      rewriter.replaceOp(op, newOp);
+                      return success();
+                  }
+              }
+
+              return failure();
+          }
+      };
+      </code></pre>
+      <h2 id="3-update-tensorencoding">3. 修改 (Update) - 更新 TensorEncoding</h2>
+      <h3 id="1-encoding_1">方法1：替换 encoding</h3>
+      <p>UpdateEncoding.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      class UpdateEncodingPattern : public mlir::OpRewritePattern&lt;SomeOp&gt; {
+      public:
+          using OpRewritePattern::OpRewritePattern;
+
+          mlir::LogicalResult matchAndRewrite(SomeOp op, mlir::PatternRewriter &amp;rewriter) const override {
+              auto resultType = op.getResult().getType().cast&lt;mlir::RankedTensorType&gt;();
+              auto oldEncoding = resultType.getEncoding();
+
+              // 🎯 创建新的 encoding
+              mlir::Attribute newEncoding;
+
+              if (auto halEncoding = oldEncoding.dyn_cast_or_null&lt;tbc::hals::HalEncodingAttr&gt;()) {
+                  // 🎉 更新 HalEncoding 的某些字段
+                  newEncoding = tbc::hals::HalEncodingAttr::get(
+                      getContext(),
+                      MemorySpace::SRAM,  // 改变内存空间
+                      halEncoding.getLayout(),  // 保持布局
+                      halEncoding.getAddr(),    // 保持地址
+                      TensorKind::TempTensor    // 改变类型
+                  );
+              } else {
+                  // 🎯 添加新的 encoding
+                  newEncoding = mlir::StringAttr::get(getContext(), &quot;new_encoding&quot;);
+              }
+
+              // 🎉 创建新类型
+              auto newType = mlir::RankedTensorType::get(
+                  resultType.getShape(),
+                  resultType.getElementType(),
+                  newEncoding
+              );
+
+              auto newOp = rewriter.create&lt;SomeOp&gt;(op.getLoc(), newType, op.getOperands());
+              rewriter.replaceOp(op, newOp);
+
+              return success();
+          }
+      };
+      </code></pre>
+      <h3 id="2_1">方法2：增量更新</h3>
+      <p>IncrementalUpdate.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      // 🎯 工具函数：更新 HalEncoding 的内存空间
+      mlir::RankedTensorType updateMemorySpace(mlir::RankedTensorType tensorType, 
+                                              MemorySpace newMemorySpace,
+                                              mlir::MLIRContext *context) {
+          auto encoding = tensorType.getEncoding();
+
+          if (auto halEncoding = encoding.dyn_cast_or_null&lt;tbc::hals::HalEncodingAttr&gt;()) {
+              // 🎉 只更新内存空间，其他保持不变
+              auto newEncoding = tbc::hals::HalEncodingAttr::get(
+                  context,
+                  newMemorySpace,                    // 新的内存空间
+                  halEncoding.getLayout(),          // 保持原有布局
+                  halEncoding.getAddr(),            // 保持原有地址
+                  halEncoding.getKind()             // 保持原有类型
+              );
+
+              return mlir::RankedTensorType::get(
+                  tensorType.getShape(),
+                  tensorType.getElementType(),
+                  newEncoding
+              );
+          }
+
+          return tensorType; // 如果不是 HalEncoding，返回原类型
+      }
+
+      // 🎯 工具函数：更新布局
+      mlir::RankedTensorType updateLayout(mlir::RankedTensorType tensorType,
+                                         StorageLayout newLayout,
+                                         mlir::MLIRContext *context) {
+          auto encoding = tensorType.getEncoding();
+
+          if (auto halEncoding = encoding.dyn_cast_or_null&lt;tbc::hals::HalEncodingAttr&gt;()) {
+              auto newEncoding = tbc::hals::HalEncodingAttr::get(
+                  context,
+                  halEncoding.getMemorySpace(),     // 保持原有内存空间
+                  newLayout,                        // 新的布局
+                  halEncoding.getAddr(),            // 保持原有地址
+                  halEncoding.getKind()             // 保持原有类型
+              );
+
+              return mlir::RankedTensorType::get(
+      </code></pre>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 <span class="neon">lordrebel</span> // 由 <span class="neon">GitHub Pages</span> 驱动 // Built with ❤ & neon</p>
+  </footer>
+
+  <!-- 悬浮返回主页按钮 -->
+  <a href="../../index.html" class="back-home-float">← 返回主页</a>
+
+  <!-- 字号缩放(5 档,localStorage 记忆) -->
+  <script>
+    (function() {
+      var steps = [0.85, 1, 1.15, 1.3, 1.5];
+      var idx = 1;
+      try {
+        idx = parseInt(localStorage.getItem('articleZoom') || '1', 10) || 1;
+        idx = Math.max(0, Math.min(steps.length - 1, idx));
+      } catch (e) { idx = 1; }
+      var content = document.querySelector('.article-content');
+      var btns = document.querySelectorAll('.zoom-btn');
+
+      function apply() {
+        if (content) content.style.fontSize = (1.08 * steps[idx]).toFixed(2) + 'rem';
+        try { localStorage.setItem('articleZoom', String(idx)); } catch (e) {}
+        btns.forEach(function(b) {
+          b.classList.toggle('active', b.dataset.zoom === 'reset' && idx === 1);
+        });
+      }
+
+      btns.forEach(function(b) {
+        b.addEventListener('click', function() {
+          var z = b.dataset.zoom;
+          if (z === 'in') idx = Math.min(steps.length - 1, idx + 1);
+          else if (z === 'out') idx = Math.max(0, idx - 1);
+          else idx = 1;
+          apply();
+        });
+      });
+      apply();
+    })();
+  </script>
+
+  <!-- 代码语法高亮(带 language-xxx 类则按指定语言,否则自动检测) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof hljs !== "undefined") {
+        document.querySelectorAll(".article-content pre code").forEach(function(b) {
+          hljs.highlightElement(b);
+        });
+      }
+    });
+  </script>
+
+  <!-- KaTeX 自动渲染 -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
