@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="curop-&gt;getNumResults()">
+  <title>mlir td定义中 的特殊变量 // lordrebel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/article.css">
+  <link rel="icon" type="image/png" href="../../images/avatar/avatar1.png">
+  <!-- KaTeX 公式渲染 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <!-- highlight.js 代码语法高亮 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg-slideshow">
+    <div class="bg-slide active" style="background-image: url('../../images/resource/cyberpunk_vqmvo5.jpg')"></div>
+  </div>
+  <div class="bg-overlay"></div>
+
+  <!-- Navigation -->
+  <nav class="nav-bar">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-logo">lordrebel</a>
+      <input type="checkbox" id="nav-check" class="nav-check">
+      <label for="nav-check" class="nav-hamburger">☰</label>
+      <ul class="nav-links">
+        <li><a href="../../index.html" class="lang-toggle">⌂ 返回主页</a></li>
+        <li class="font-zoom">
+          <button class="zoom-btn" type="button" data-zoom="out" title="缩小字号">A−</button>
+          <button class="zoom-btn" type="button" data-zoom="reset" title="默认字号">A</button>
+          <button class="zoom-btn" type="button" data-zoom="in" title="放大字号">A+</button>
+        </li>
+        <li><button class="style-toggle" onclick="document.body.classList.toggle('minimal');this.textContent=document.body.classList.contains('minimal')?'炫酷':'简洁'">简洁</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Decorative side bars -->
+  <div class="deco-bar-left"></div>
+  <div class="deco-bar-right"></div>
+
+  <!-- Article -->
+  <section class="section has-bg article-section" id="article">
+    <h2 class="section-title"><span class="num">2026.09.23</span>mlir td定义中 的特殊变量</h2>
+    <div class="article-content">
+      <h2 id="tablegen">TableGen 特殊变量完全指南 📚</h2>
+      <h3 id="1-opinterface">1. OpInterface 中的特殊变量</h3>
+      <p>`cur_op-&gt;getNumResults()`</p>
+      <h4 id="_op-">\$_op - 当前操作的指针</h4>
+      <p>示例 Interface 定义</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      def MyInterface : OpInterface&lt;&quot;MyInterface&quot;&gt; {
+        let methods = [
+          InterfaceMethod&lt;
+            &quot;void&quot;, &quot;doSomething&quot;, (ins),
+            /*methodBody=*/&quot;&quot;,
+            /*defaultImplementation=*/[{
+              // $_op 是指向当前 Op $_op-&gt;getOperation()
+              auto operands = $_op.getOperands();  // 获取操作数
+              auto results = $_op.getResults();    // 获取结果
+              auto attrs = $_op.getAttrs();        // 获取属性
+
+              // 可以调用 Operation 的任何方法
+              if ($_op-&gt;hasAttr(&quot;some_attr&quot;)) {
+                // ...
+              }
+            }]
+          &gt;
+        ];
+      }
+      </code></pre>
+      <p><strong>生成的 C++ 代码：</strong></p>
+      <pre><code class="language-cpp">// $_op 会被替换为 static_cast&lt;ConcreteOp*&gt;(this)
+      template &lt;typename ConcreteOp&gt;
+      struct MyInterfaceTrait {
+          void doSomething() {
+              auto operands = static_cast&lt;ConcreteOp*&gt;(this)-&gt;getOperands();
+              auto results = static_cast&lt;ConcreteOp*&gt;(this)-&gt;getResults();
+              // ...
+          }
+      };
+      </code></pre>
+      <h4 id="_self-">\$_self - 当前对象（较少使用）</h4>
+      <pre><code class="language-tablegen">InterfaceMethod&lt;
+        &quot;bool&quot;, &quot;isValid&quot;, (ins),
+        /*defaultImplementation=*/[{
+          // $_self 通常用于 Attribute/Type Interface
+          return $_self.isa&lt;SomeType&gt;();
+        }]
+      &gt;
+      </code></pre>
+      <hr>
+      <h3 id="2-op">2. Op 定义中的特殊变量</h3>
+      <h4 id="operand_name-">\$\&lt;operand_name&gt; - 访问操作数</h4>
+      <p>示例 Op 定义</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      def MyAddOp : Op&lt;MyDialect, &quot;add&quot;&gt; {
+        let arguments = (ins 
+          AnyTensor:$lhs,      // 左操作数
+          AnyTensor:$rhs,      // 右操作数
+          I64Attr:$scale       // 属性
+        );
+        let results = (outs AnyTensor:$output);
+
+        let extraClassDeclaration = [{
+          // 在 C++ 代码中可以这样用：
+          Value getLhs() { return getOperand(0); }  // 或者用生成的 getLhs()
+          Value getRhs() { return getOperand(1); }  // 或者用生成的 getRhs()
+          int64_t getScale() { return getScaleAttr().getInt(); }
+        }];
+
+        let hasVerifier = 1;
+      }
+      </code></pre>
+      <p><strong>在 Verifier 中使用：</strong></p>
+      <p>MyAddOp.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      LogicalResult MyAddOp::verify() {
+          // 可以直接用生成的 getter
+          auto lhs = getLhs();
+          auto rhs = getRhs();
+          auto scale = getScale();
+
+          // 验证逻辑
+          if (scale &lt;= 0) {
+              return emitError(&quot;scale must be positive&quot;);
+          }
+          return success();
+      }
+      </code></pre>
+      <hr>
+      <h3 id="3-pattern-rewrite">3. Pattern Rewrite 中的特殊变量</h3>
+      <h4 id="_builder-patternrewriter">\$_builder - PatternRewriter 引用</h4>
+      <p>示例 Pattern 定义</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      def FoldAddZero : Pat&lt;
+        (MyAddOp $lhs, (ConstantOp $zero), $scale),  // 匹配模式
+        (replaceWithValue $lhs),                      // 替换模式
+        [(IsZero $zero)]                              // 约束条件
+      &gt;;
+
+      // 更复杂的例子：
+      def FuseAddMul : Pat&lt;
+        (MyMulOp (MyAddOp $x, $y), $z),
+        (MyFusedOp $x, $y, $z),
+        [],
+        // 可以添加额外的 C++ 代码
+        [{
+          // $_builder 是 PatternRewriter&amp;
+          auto loc = $_builder.getUnknownLoc();
+          auto newOp = $_builder.create&lt;MyFusedOp&gt;(loc, ...);
+          return newOp;
+        }]
+      &gt;;
+      </code></pre>
+      <h4 id="_loc-location">\$_loc - Location 对象</h4>
+      <pre><code class="language-tablegen">def CreateNewOp : NativeCodeCall&lt;
+        &quot;$_builder.create&lt;NewOp&gt;($_loc, $0, $1)&quot;
+      &gt;;
+
+      // 使用：
+      def MyPattern : Pat&lt;
+        (OldOp $a, $b),
+        (CreateNewOp $a, $b)  // $_loc 会自动传入
+      &gt;;
+      </code></pre>
+      <h4 id="0-1-2-">\$0, \$1, \$2, ... - 匹配的参数</h4>
+      <p>示例 Native Code Call</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      def CreateScaledAdd : NativeCodeCall&lt;
+        &quot;$_builder.create&lt;AddOp&gt;($_loc, $0, $1, $_builder.getI64IntegerAttr($2 * 2))&quot;
+      &gt;;
+
+      def ScalePattern : Pat&lt;
+        (MyOp $input1, $input2, $scale),
+        (CreateScaledAdd $input1, $input2, $scale)
+        // $0 = $input1, $1 = $input2, $2 = $scale
+      &gt;;
+      </code></pre>
+      <hr>
+      <h3 id="4-attributetype">4. Attribute/Type 定义中的特殊变量</h3>
+      <h4 id="_self-attributetype">\$_self - 当前 Attribute/Type</h4>
+      <p>示例 Attribute 定义</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      def MyAttr : AttrDef&lt;MyDialect, &quot;MyAttr&quot;&gt; {
+        let parameters = (ins &quot;int64_t&quot;:$value);
+
+        let extraClassDeclaration = [{
+          bool isPositive() const {
+            // $_self 在这里不适用，直接用 getValue()
+            return getValue() &gt; 0;
+          }
+        }];
+      }
+
+      // Type Interface 示例
+      def ShapedTypeInterface : TypeInterface&lt;&quot;ShapedType&quot;&gt; {
+        let methods = [
+          InterfaceMethod&lt;
+            &quot;bool&quot;, &quot;hasRank&quot;, (ins),
+            /*defaultImplementation=*/[{
+              // $_self 指向当前 Type
+              return $_self.isa&lt;RankedTensorType&gt;();
+            }]
+          &gt;
+        ];
+      }
+      </code></pre>
+      <hr>
+      <h3 id="5-pass">5. Pass 定义中的特殊变量</h3>
+      <h4 id="_op-operation">\$_op - 当前处理的 Operation</h4>
+      <p>示例 Pass 定义</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      def MyPass : Pass&lt;&quot;my-pass&quot;, &quot;func::FuncOp&quot;&gt; {
+        let summary = &quot;My optimization pass&quot;;
+        let constructor = &quot;createMyPass()&quot;;
+
+        // 在 Pass 实现中：
+        let dependentDialects = [&quot;arith::ArithDialect&quot;];
+      }
+      </code></pre>
+      <p><strong>在 Pass 实现中：</strong></p>
+      <p>MyPass.cpp</p>
+      <p>Apply</p>
+      <pre><code class="language-cpp">
+      struct MyPass : public MyPassBase&lt;MyPass&gt; {
+        void runOnOperation() override {
+          // getOperation() 返回当前处理的 Operation
+          auto funcOp = getOperation();  // 这里是 func::FuncOp
+
+          funcOp.walk([&amp;](Operation* op) {
+            // 遍历所有操作
+            if (auto addOp = dyn_cast&lt;MyAddOp&gt;(op)) {
+              // 处理 AddOp
+            }
+          });
+        }
+      };
+      </code></pre>
+      <hr>
+      <h3 id="6">6. 约束条件中的特殊变量</h3>
+      <h4 id="_self-_1">\$_self - 被约束的值</h4>
+      <p>示例约束定义</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      def IsPositive : Constraint&lt;
+        CPred&lt;&quot;$_self.cast&lt;IntegerAttr&gt;().getInt() &gt; 0&quot;&gt;,
+        &quot;attribute must be positive&quot;
+      &gt;;
+
+      def MyOp : Op&lt;MyDialect, &quot;my_op&quot;&gt; {
+        let arguments = (ins 
+          I64Attr:$value
+        );
+
+        // 使用约束
+        let hasVerifier = 1;
+      }
+
+      // 在 Pattern 中使用：
+      def OptimizePositive : Pat&lt;
+        (MyOp $val),
+        (NewOp $val),
+        [(IsPositive $val)]  // $val 会被传给 $_self
+      &gt;;
+      </code></pre>
+      <hr>
+      <h2 id="_1">完整示例：综合运用 🎨</h2>
+      <p>MyInterface.td</p>
+      <p>Apply</p>
+      <pre><code class="language-tablegen">
+      #ifndef MY_INTERFACE
+      #define MY_INTERFACE
+
+      include &quot;mlir/IR/OpBase.td&quot;
+
+      // ============ Interface 定义 ============
+      def MyInterface : OpInterface&lt;&quot;MyInterface&quot;&gt; {
+        let description = &quot;示例接口&quot;;
+        let cppNamespace = &quot;::aice&quot;;
+
+        let methods = [
+          InterfaceMethod&lt;
+            &quot;LogicalResult&quot;, &quot;optimize&quot;,
+            (ins &quot;PatternRewriter&amp;&quot;:$rewriter),
+            /*methodBody=*/&quot;&quot;,
+            /*defaultImplementation=*/[{
+              // $_op 指向当前 Operation
+              auto loc = $_op-&gt;getLoc();
+              auto operands = $_op-&gt;getOperands();
+
+              // 使用 rewriter 创建新操作
+              auto newOp = rewriter.create&lt;SomeOp&gt;(loc, operands);
+              rewriter.replaceOp($_op, newOp);
+
+              return success();
+            }]
+          &gt;,
+
+          InterfaceMethod&lt;
+            &quot;bool&quot;, &quot;canOptimize&quot;, (ins),
+            /*defaultImplementation=*/[{
+              // 检查操作是否可以优化
+              return $_op-&gt;getNumOperands() &gt; 0 &amp;&amp; 
+                     $_op-&gt;getNumResults() == 1;
+            }]
+          &gt;
+        ];
+      }
+
+      // ============ Op 定义 ============
+      def MyComputeOp : Op&lt;MyDialect, &quot;compute&quot;, [MyInterface]&gt; {
+        let arguments = (ins 
+          AnyTensor:$input,
+          AnyTensor:$weight,
+          I64Attr:$scale,
+          BoolAttr:$fuse_relu
+        );
+        let results = (outs AnyTensor:$output);
+
+        // 使用 $input, $weight 等访问操作数
+        let extraClassDeclaration = [{
+          Value getInput() { return getOperand(0); }
+          Value getWeight() { return getOperand(1); }
+          int64_t getScale() { return getScaleAttr().getInt(); }
+        }];
+      }
+
+      // ============ Pattern 定义 ============
+      def FuseReluPattern : Pat&lt;
+        // 匹配：Compute -&gt; Relu
+        (ReluOp (MyComputeOp $input, $weight, $scale, ConstBoolAttrFalse)),
+        // 替换：Compute with fuse_relu=true
+        (MyComputeOp $input, $weight, $scale, ConstBoolAttrTrue),
+        // 约束
+        [(HasOneUse $0)]  // $0 是 MyComputeOp 的结果
+      &gt;;
+
+      // ============ Native Code Call ============
+      def CreateFusedOp : NativeCodeCall&lt;
+        &quot;$_builder.create&lt;MyComputeOp&gt;(&quot;
+          &quot;$_loc, &quot;           // 位置
+          &quot;$0, &quot;              // input
+          &quot;$1, &quot;              // weight  
+          &quot;$_builder.getI64IntegerAttr($2 * 2), &quot;  // scale * 2
+          &quot;$_builder.getBoolAttr(true)&quot;            // fuse_relu
+        &quot;)&quot;
+      &gt;;
+
+      #endif
+      </code></pre>
+      <table>
+      <thead>
+      <tr>
+      <th>变量</th>
+      <th>使用场景</th>
+      <th>含义</th>
+      <th>示例</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+      <td>`$_op`</td>
+      <td>OpInterface, Pattern</td>
+      <td>当前 Operation 指针</td>
+      <td>`$_op-&gt;getOperands()`</td>
+      </tr>
+      <tr>
+      <td>`$_self`</td>
+      <td>Attribute/Type Interface, Constraint</td>
+      <td>当前对象本身</td>
+      <td>`$_self.isa&lt;IntegerType&gt;()`</td>
+      </tr>
+      <tr>
+      <td>`$_builder`</td>
+      <td>Pattern, NativeCodeCall</td>
+      <td>PatternRewriter 引用</td>
+      <td>`$_builder.create&lt;NewOp&gt;(...)`</td>
+      </tr>
+      <tr>
+      <td>`$_loc`</td>
+      <td>Pattern, NativeCodeCall</td>
+      <td>Location 对象</td>
+      <td>`$_builder.create&lt;Op&gt;($_loc, ...)`</td>
+      </tr>
+      <tr>
+      <td>`$_ctx`</td>
+      <td>较少使用</td>
+      <td>MLIRContext 指针</td>
+      <td>`$_ctx-&gt;getI64Type()`</td>
+      </tr>
+      <tr>
+      <td>`$&lt;name&gt;`</td>
+      <td>Op 定义</td>
+      <td>访问命名的操作数/属性</td>
+      <td>`$input`​, `$scale`</td>
+      </tr>
+      <tr>
+      <td>`$0, $1, $2...`</td>
+      <td>Pattern, NativeCodeCall</td>
+      <td>匹配的参数（按位置）</td>
+      <td>`$0` = 第一个参数</td>
+      </tr>
+      </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 <span class="neon">lordrebel</span> // 由 <span class="neon">GitHub Pages</span> 驱动 // Built with ❤ & neon</p>
+  </footer>
+
+  <!-- 悬浮返回主页按钮 -->
+  <a href="../../index.html" class="back-home-float">← 返回主页</a>
+
+  <!-- 字号缩放(5 档,localStorage 记忆) -->
+  <script>
+    (function() {
+      var steps = [0.85, 1, 1.15, 1.3, 1.5];
+      var idx = 1;
+      try {
+        idx = parseInt(localStorage.getItem('articleZoom') || '1', 10) || 1;
+        idx = Math.max(0, Math.min(steps.length - 1, idx));
+      } catch (e) { idx = 1; }
+      var content = document.querySelector('.article-content');
+      var btns = document.querySelectorAll('.zoom-btn');
+
+      function apply() {
+        if (content) content.style.fontSize = (1.08 * steps[idx]).toFixed(2) + 'rem';
+        try { localStorage.setItem('articleZoom', String(idx)); } catch (e) {}
+        btns.forEach(function(b) {
+          b.classList.toggle('active', b.dataset.zoom === 'reset' && idx === 1);
+        });
+      }
+
+      btns.forEach(function(b) {
+        b.addEventListener('click', function() {
+          var z = b.dataset.zoom;
+          if (z === 'in') idx = Math.min(steps.length - 1, idx + 1);
+          else if (z === 'out') idx = Math.max(0, idx - 1);
+          else idx = 1;
+          apply();
+        });
+      });
+      apply();
+    })();
+  </script>
+
+  <!-- 代码语法高亮(带 language-xxx 类则按指定语言,否则自动检测) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof hljs !== "undefined") {
+        document.querySelectorAll(".article-content pre code").forEach(function(b) {
+          hljs.highlightElement(b);
+        });
+      }
+    });
+  </script>
+
+  <!-- KaTeX 自动渲染 -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
